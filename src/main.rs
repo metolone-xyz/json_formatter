@@ -21,8 +21,10 @@ fn main() -> io::Result<()> {
     // JSON配列内の各アイテムを処理する
     for item in json.iter_mut() {
         if let Some(output) = item["output"].as_str() {
-            // outputフィールドからURLを削除する
-            let cleaned_output = url_regex.replace_all(output, "");
+            // 全角スペースを半角スペースに置き換える
+            let replaced_output = output.replace("　", " ");
+            // URLを削除する
+            let cleaned_output = url_regex.replace_all(&replaced_output, "");
             item["output"] = Value::from(cleaned_output.to_string());
         }
     }
@@ -31,7 +33,5 @@ fn main() -> io::Result<()> {
     let mut file = OpenOptions::new().write(true).truncate(true).open(file_path)?;
     file.write_all(serde_json::to_string_pretty(&json)?.as_bytes())?;
 
-    
     Ok(())
 }
-
